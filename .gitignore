@@ -1,0 +1,14 @@
+node_modules
+dist
+dist-ssr
+.claude
+*.local
+.env
+.env.local
+.DS_Store
+*.tsbuildinfo
+/vite.config.js
+/vite.config.d.ts
+
+# Auto-generated from Google Sheets at build time — see scripts/sync-products.mjs
+src/data/products.generated.ts
