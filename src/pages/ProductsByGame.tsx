@@ -111,7 +111,13 @@ export default function ProductsByGame({ gameSlug }: ProductsByGameProps) {
                   <span className="text-lg font-bold text-slate-900">
                     {formatPrice(product.price)}
                   </span>
-                  <span className="btn-primary pointer-events-none">
+                  <span
+                    className={`pointer-events-none ${
+                      stockStatus.soldOut
+                        ? "rounded-lg bg-slate-200 px-5 py-2.5 font-semibold text-slate-500"
+                        : "btn-primary"
+                    }`}
+                  >
                     {stockStatus.soldOut ? "Sold Out" : "View Details"}
                   </span>
                 </div>
