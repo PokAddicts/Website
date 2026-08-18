@@ -9,6 +9,7 @@ import {
   preorderProducts,
 } from "../data/products";
 import { formatPrice } from "../utils/currency";
+import { formatReleaseDate } from "../utils/date";
 
 export default function PreorderProducts() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -92,13 +93,7 @@ export default function PreorderProducts() {
                 <div className="mt-4 space-y-1 text-sm text-slate-500">
                   <p>
                     Est. Release:{" "}
-                    <span className="text-slate-700">
-                      {new Date(product.releaseDate).toLocaleDateString(undefined, {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </span>
+                    <span className="text-slate-700">{formatReleaseDate(product.releaseDate)}</span>
                   </p>
                   <p>
                     Deposit required:{" "}

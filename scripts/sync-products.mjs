@@ -73,7 +73,7 @@ async function main() {
     const type = (row.type || "").trim().toLowerCase();
     const name = (row.name || "").trim();
     const category = (row.category || "").trim();
-    const price = Number(row.price);
+    const price = parseNumber(row.price);
 
     if (!name || !VALID_CATEGORIES.includes(category) || Number.isNaN(price)) {
       skipped++;
@@ -96,7 +96,7 @@ async function main() {
       preorders.push({
         ...base,
         id: base.id || `po-${poCount}`,
-        depositPercent: Number(row.depositPercent) || 0,
+        depositPercent: parseNumber(row.depositPercent) || 0,
         releaseDate: (row.releaseDate || "").trim(),
         ...(String(row.limitedQty).trim().toUpperCase() === "TRUE" ? { limitedQty: true } : {}),
       });
@@ -105,7 +105,7 @@ async function main() {
       stock.push({
         ...base,
         id: base.id || `st-${stCount}`,
-        quantityAvailable: Number(row.quantityAvailable) || 0,
+        quantityAvailable: parseNumber(row.quantityAvailable) || 0,
       });
     } else {
       skipped++;
@@ -125,6 +125,13 @@ async function main() {
       (skipped ? ` (${skipped} row(s) skipped, see warnings above)` : "") +
       "."
   );
+}
+
+// Tolerates values like "$3,250", "50%", " 1,000 " typed naturally into a sheet.
+function parseNumber(value) {
+  if (value === undefined || value === null) return NaN;
+  const cleaned = String(value).replace(/[$,%\s]/g, "");
+  return cleaned === "" ? NaN : Number(cleaned);
 }
 
 function writeGenerated(preorderProducts, stockProducts) {

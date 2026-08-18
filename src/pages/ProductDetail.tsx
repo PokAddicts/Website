@@ -4,6 +4,7 @@ import ProductImagePlaceholder from "../components/ProductImagePlaceholder";
 import { useCart } from "../context/CartContext";
 import { categoryBadgeClasses, categoryMap, getProductById } from "../data/products";
 import { formatPrice } from "../utils/currency";
+import { formatReleaseDate } from "../utils/date";
 import NotFound from "./NotFound";
 
 export default function ProductDetail() {
@@ -71,13 +72,7 @@ export default function ProductDetail() {
             <div className="mt-4 space-y-1 text-sm text-slate-500">
               <p>
                 Est. Release:{" "}
-                <span className="text-slate-700">
-                  {new Date(product.releaseDate).toLocaleDateString(undefined, {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </span>
+                <span className="text-slate-700">{formatReleaseDate(product.releaseDate)}</span>
               </p>
               <p>
                 Deposit required: <span className="text-slate-700">{product.depositPercent}%</span>
