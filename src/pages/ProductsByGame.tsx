@@ -11,7 +11,7 @@ import {
   stockProducts,
 } from "../data/products";
 import { formatPrice } from "../utils/currency";
-import { getStockStatus } from "../utils/stock";
+import { getStockStatus, sortByAvailability } from "../utils/stock";
 
 interface ProductsByGameProps {
   gameSlug: string;
@@ -32,13 +32,12 @@ export default function ProductsByGame({ gameSlug }: ProductsByGameProps) {
     [gameSlug]
   );
 
-  const filtered = useMemo(
-    () =>
-      activeCategory
-        ? gameProducts.filter((p) => p.category === activeCategory)
-        : gameProducts,
-    [activeCategory, gameProducts]
-  );
+  const filtered = useMemo(() => {
+    const base = activeCategory
+      ? gameProducts.filter((p) => p.category === activeCategory)
+      : gameProducts;
+    return sortByAvailability(base, (p) => p.quantityAvailable);
+  }, [activeCategory, gameProducts]);
 
   function selectCategory(value: Category | null) {
     if (value) {

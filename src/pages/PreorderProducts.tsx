@@ -10,19 +10,18 @@ import {
 } from "../data/products";
 import { formatPrice } from "../utils/currency";
 import { formatReleaseDate } from "../utils/date";
-import { getStockStatus } from "../utils/stock";
+import { getStockStatus, sortByAvailability } from "../utils/stock";
 
 export default function PreorderProducts() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeGameSlug = searchParams.get("game");
 
-  const filtered = useMemo(
-    () =>
-      activeGameSlug
-        ? preorderProducts.filter((p) => categoryMap[p.category].gameSlug === activeGameSlug)
-        : preorderProducts,
-    [activeGameSlug]
-  );
+  const filtered = useMemo(() => {
+    const base = activeGameSlug
+      ? preorderProducts.filter((p) => categoryMap[p.category].gameSlug === activeGameSlug)
+      : preorderProducts;
+    return sortByAvailability(base, (p) => p.quantityAvailable);
+  }, [activeGameSlug]);
 
   function selectGame(slug: string | null) {
     if (slug) {

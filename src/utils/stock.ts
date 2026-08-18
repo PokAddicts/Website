@@ -27,3 +27,21 @@ export function getStockStatus(quantityAvailable: number, noun: string = "in sto
     soldOut: false,
   };
 }
+
+export function isSoldOut(quantityAvailable: number | undefined): boolean {
+  return quantityAvailable !== undefined && quantityAvailable <= 0;
+}
+
+// Available items first (newest-added first within that group), sold-out items pushed to the
+// back. "Newest" is inferred from list order — later sheet rows sort earlier.
+export function sortByAvailability<T>(items: T[], getQty: (item: T) => number | undefined): T[] {
+  return items
+    .map((item, index) => ({ item, index }))
+    .sort((a, b) => {
+      const aSoldOut = isSoldOut(getQty(a.item));
+      const bSoldOut = isSoldOut(getQty(b.item));
+      if (aSoldOut !== bSoldOut) return aSoldOut ? 1 : -1;
+      return b.index - a.index;
+    })
+    .map(({ item }) => item);
+}
