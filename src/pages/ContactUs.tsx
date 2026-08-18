@@ -1,5 +1,6 @@
 import { FormEvent, useState } from "react";
 import PageHeader from "../components/PageHeader";
+import { sendTelegramMessage } from "../utils/telegram";
 
 interface FormState {
   businessName: string;
@@ -31,7 +32,17 @@ export default function ContactUs() {
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    // TODO: wire up to Google Sheets + Telegram bot notification.
+    // TODO: also log this to Google Sheets once the inquiries sheet exists.
+    sendTelegramMessage(
+      "New Bulk & Wholesale Inquiry\n" +
+        `Business/Channel: ${form.businessName || "—"}\n` +
+        `Contact: ${form.contactName}\n` +
+        `Email: ${form.email}\n` +
+        `Phone: ${form.phone || "—"}\n` +
+        `Interested In: ${form.interest}\n` +
+        `Est. Quantity: ${form.estimatedQuantity || "—"}\n` +
+        `Message: ${form.message || "—"}`
+    ).catch(() => {});
     setSubmitted(true);
   }
 
