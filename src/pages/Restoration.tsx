@@ -1,5 +1,6 @@
 import { FormEvent, useState } from "react";
 import PageHeader from "../components/PageHeader";
+import { sendTelegramMessage } from "../utils/telegram";
 
 const SERVICES = [
   {
@@ -62,7 +63,17 @@ export default function Restoration() {
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    // TODO: wire up to Google Sheets + Telegram bot notification.
+    // TODO: also log this to Google Sheets once the appointments sheet exists.
+    sendTelegramMessage(
+      "New Restoration Booking\n" +
+        `Name: ${form.name}\n` +
+        `Email: ${form.email}\n` +
+        `Phone: ${form.phone || "—"}\n` +
+        `Service: ${form.service}\n` +
+        `Item(s): ${form.itemDescription}\n` +
+        `Preferred: ${form.preferredDate || "—"} at ${form.preferredTime || "—"}\n` +
+        `Notes: ${form.notes || "—"}`
+    ).catch(() => {});
     setSubmitted(true);
   }
 
