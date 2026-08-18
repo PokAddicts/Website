@@ -20,9 +20,15 @@ export default function ProductDetail() {
 
   const { kind, product } = entry;
   const category = categoryMap[product.category];
-  const stockStatus = kind === "stock" ? getStockStatus(product.quantityAvailable) : null;
+  const stockStatus =
+    kind === "stock"
+      ? getStockStatus(product.quantityAvailable)
+      : product.quantityAvailable !== undefined
+      ? getStockStatus(product.quantityAvailable, "allocated")
+      : null;
   const soldOut = stockStatus?.soldOut ?? false;
-  const maxQuantity = kind === "stock" ? product.quantityAvailable : 99;
+  const maxQuantity =
+    kind === "stock" ? product.quantityAvailable : product.quantityAvailable ?? 99;
 
   function clampQuantity(value: number) {
     if (maxQuantity <= 0) return 0;
@@ -53,7 +59,7 @@ export default function ProductDetail() {
             <span className={`badge ${categoryBadgeClasses[product.category]}`}>
               {category.label}
             </span>
-            {kind === "preorder" && product.limitedQty && (
+            {kind === "preorder" && product.limitedQty && product.quantityAvailable === undefined && (
               <span className="badge bg-ember-500/10 text-ember-600 ring-1 ring-inset ring-ember-500/30">
                 Limited Qty
               </span>
@@ -132,7 +138,7 @@ export default function ProductDetail() {
                   +
                 </button>
               </div>
-              {kind === "stock" && (
+              {(kind === "stock" || product.quantityAvailable !== undefined) && (
                 <span className="text-xs text-slate-400">{maxQuantity} available</span>
               )}
             </div>

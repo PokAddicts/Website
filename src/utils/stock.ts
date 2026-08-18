@@ -6,7 +6,7 @@ export interface StockStatus {
 
 const LOW_STOCK_THRESHOLD = 5;
 
-export function getStockStatus(quantityAvailable: number): StockStatus {
+export function getStockStatus(quantityAvailable: number, noun: string = "in stock"): StockStatus {
   if (quantityAvailable <= 0) {
     return {
       label: "Sold Out",
@@ -22,7 +22,7 @@ export function getStockStatus(quantityAvailable: number): StockStatus {
     };
   }
   return {
-    label: `${quantityAvailable} in stock`,
+    label: `${quantityAvailable} ${noun}`,
     badgeClass: "bg-leaf-100 text-leaf-600 ring-1 ring-inset ring-leaf-400/40",
     soldOut: false,
   };

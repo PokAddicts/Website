@@ -13,7 +13,10 @@
 // - type: "preorder" or "stock"
 // - category: one of pokemon-jp, pokemon-en, pokemon-kr, pokemon-cn, one-piece-en, one-piece-jp
 // - depositPercent / releaseDate / limitedQty: preorder rows only
-// - quantityAvailable: stock rows only
+// - quantityAvailable: required for stock rows (physical count on hand).
+//   Optional for preorder rows — fill it in with the guaranteed allocation amount
+//   if there's a hard cap; once it hits 0 the listing shows as Sold Out, same as
+//   stock. Leave it blank for preorders with no fixed cap.
 // - id, description, imageUrl: optional (id is auto-generated if left blank)
 
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
@@ -93,12 +96,14 @@ async function main() {
 
     if (type === "preorder") {
       poCount++;
+      const rawQty = (row.quantityAvailable || "").trim();
       preorders.push({
         ...base,
         id: base.id || `po-${poCount}`,
         depositPercent: parseNumber(row.depositPercent) || 0,
         releaseDate: (row.releaseDate || "").trim(),
         ...(String(row.limitedQty).trim().toUpperCase() === "TRUE" ? { limitedQty: true } : {}),
+        ...(rawQty !== "" ? { quantityAvailable: parseNumber(rawQty) || 0 } : {}),
       });
     } else if (type === "stock") {
       stCount++;

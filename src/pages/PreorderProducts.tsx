@@ -10,6 +10,7 @@ import {
 } from "../data/products";
 import { formatPrice } from "../utils/currency";
 import { formatReleaseDate } from "../utils/date";
+import { getStockStatus } from "../utils/stock";
 
 export default function PreorderProducts() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -69,11 +70,18 @@ export default function PreorderProducts() {
         </div>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filtered.map((product) => (
+          {filtered.map((product) => {
+            const stockStatus =
+              product.quantityAvailable !== undefined
+                ? getStockStatus(product.quantityAvailable, "allocated")
+                : null;
+            return (
             <Link
               key={product.id}
               to={`/product/${product.id}`}
-              className="card flex flex-col overflow-hidden transition hover:border-gold-400 hover:shadow-md"
+              className={`card flex flex-col overflow-hidden transition hover:border-gold-400 hover:shadow-md ${
+                stockStatus?.soldOut ? "opacity-60" : ""
+              }`}
             >
               <ProductImagePlaceholder category={product.category} imageUrl={product.imageUrl} />
               <div className="flex flex-1 flex-col p-4">
@@ -81,10 +89,14 @@ export default function PreorderProducts() {
                   <span className={`badge ${categoryBadgeClasses[product.category]}`}>
                     {categoryMap[product.category].label}
                   </span>
-                  {product.limitedQty && (
-                    <span className="badge bg-ember-500/10 text-ember-600 ring-1 ring-inset ring-ember-500/30">
-                      Limited Qty
-                    </span>
+                  {stockStatus ? (
+                    <span className={`badge ${stockStatus.badgeClass}`}>{stockStatus.label}</span>
+                  ) : (
+                    product.limitedQty && (
+                      <span className="badge bg-ember-500/10 text-ember-600 ring-1 ring-inset ring-ember-500/30">
+                        Limited Qty
+                      </span>
+                    )
                   )}
                 </div>
                 <h3 className="font-semibold text-slate-900">{product.name}</h3>
@@ -105,11 +117,14 @@ export default function PreorderProducts() {
                   <span className="text-lg font-bold text-slate-900">
                     {formatPrice(product.price)}
                   </span>
-                  <span className="btn-primary pointer-events-none">View Details</span>
+                  <span className="btn-primary pointer-events-none">
+                    {stockStatus?.soldOut ? "Sold Out" : "View Details"}
+                  </span>
                 </div>
               </div>
             </Link>
-          ))}
+            );
+          })}
         </div>
 
         {filtered.length === 0 && (

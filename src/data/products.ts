@@ -62,6 +62,7 @@ export interface PreorderProduct {
   depositPercent: number;
   releaseDate: string;
   limitedQty?: boolean;
+  quantityAvailable?: number;
 }
 
 export interface StockProduct {

@@ -2,9 +2,15 @@ import { NavLink, useNavigate } from "react-router-dom";
 import PageHeader from "../components/PageHeader";
 import ProductImagePlaceholder from "../components/ProductImagePlaceholder";
 import { useCart } from "../context/CartContext";
-import { categoryMap, getProductById } from "../data/products";
+import { categoryMap, getProductById, PreorderProduct, StockProduct } from "../data/products";
 import { formatPrice } from "../utils/currency";
 import { getStockStatus } from "../utils/stock";
+
+function lineStockStatus(kind: "preorder" | "stock", product: PreorderProduct | StockProduct) {
+  if (kind === "stock") return getStockStatus((product as StockProduct).quantityAvailable);
+  const qty = (product as PreorderProduct).quantityAvailable;
+  return qty !== undefined ? getStockStatus(qty, "allocated") : null;
+}
 
 export default function Cart() {
   const cart = useCart();
@@ -19,9 +25,7 @@ export default function Cart() {
     .filter((x): x is NonNullable<typeof x> => x !== null);
 
   const hasPreorderLine = lines.some((l) => l.kind === "preorder");
-  const hasSoldOutLine = lines.some(
-    (l) => l.kind === "stock" && getStockStatus(l.product.quantityAvailable).soldOut
-  );
+  const hasSoldOutLine = lines.some((l) => lineStockStatus(l.kind, l.product)?.soldOut ?? false);
   const subtotal = lines.reduce((sum, l) => sum + l.product.price * l.line.quantity, 0);
 
   if (lines.length === 0) {
@@ -47,8 +51,9 @@ export default function Cart() {
       <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="space-y-4">
         {lines.map(({ line, kind, product }) => {
-          const maxQuantity = kind === "stock" ? product.quantityAvailable : 99;
-          const stockStatus = kind === "stock" ? getStockStatus(product.quantityAvailable) : null;
+          const maxQuantity =
+            kind === "stock" ? product.quantityAvailable : product.quantityAvailable ?? 99;
+          const stockStatus = lineStockStatus(kind, product);
           return (
             <div key={line.id} className="card flex gap-4 p-4">
               <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg">
