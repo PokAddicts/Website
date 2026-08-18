@@ -4,6 +4,7 @@ import ProductImagePlaceholder from "../components/ProductImagePlaceholder";
 import { useCart } from "../context/CartContext";
 import { categoryMap, getProductById } from "../data/products";
 import { formatPrice } from "../utils/currency";
+import { getStockStatus } from "../utils/stock";
 
 export default function Cart() {
   const cart = useCart();
@@ -18,6 +19,9 @@ export default function Cart() {
     .filter((x): x is NonNullable<typeof x> => x !== null);
 
   const hasPreorderLine = lines.some((l) => l.kind === "preorder");
+  const hasSoldOutLine = lines.some(
+    (l) => l.kind === "stock" && getStockStatus(l.product.quantityAvailable).soldOut
+  );
   const subtotal = lines.reduce((sum, l) => sum + l.product.price * l.line.quantity, 0);
 
   if (lines.length === 0) {
@@ -44,6 +48,7 @@ export default function Cart() {
       <div className="space-y-4">
         {lines.map(({ line, kind, product }) => {
           const maxQuantity = kind === "stock" ? product.quantityAvailable : 99;
+          const stockStatus = kind === "stock" ? getStockStatus(product.quantityAvailable) : null;
           return (
             <div key={line.id} className="card flex gap-4 p-4">
               <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg">
@@ -56,6 +61,9 @@ export default function Cart() {
                       {product.name}
                     </NavLink>
                     <p className="text-xs text-slate-400">{categoryMap[product.category].label}</p>
+                    {stockStatus?.soldOut && (
+                      <span className={`badge mt-1 ${stockStatus.badgeClass}`}>{stockStatus.label}</span>
+                    )}
                   </div>
                   <button
                     type="button"
@@ -113,9 +121,15 @@ export default function Cart() {
             once stock arrives. This is broken down at checkout.
           </p>
         )}
+        {hasSoldOutLine && (
+          <p className="mt-2 text-xs font-medium text-ember-600">
+            One or more items in your cart are sold out — remove them to continue.
+          </p>
+        )}
         <button
           type="button"
-          className="btn-primary mt-4 w-full"
+          disabled={hasSoldOutLine}
+          className="btn-primary mt-4 w-full disabled:cursor-not-allowed disabled:opacity-50"
           onClick={() => navigate("/checkout")}
         >
           Proceed to Checkout

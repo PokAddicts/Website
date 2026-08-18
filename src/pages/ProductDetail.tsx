@@ -5,6 +5,7 @@ import { useCart } from "../context/CartContext";
 import { categoryBadgeClasses, categoryMap, getProductById } from "../data/products";
 import { formatPrice } from "../utils/currency";
 import { formatReleaseDate } from "../utils/date";
+import { getStockStatus } from "../utils/stock";
 import NotFound from "./NotFound";
 
 export default function ProductDetail() {
@@ -19,19 +20,24 @@ export default function ProductDetail() {
 
   const { kind, product } = entry;
   const category = categoryMap[product.category];
+  const stockStatus = kind === "stock" ? getStockStatus(product.quantityAvailable) : null;
+  const soldOut = stockStatus?.soldOut ?? false;
   const maxQuantity = kind === "stock" ? product.quantityAvailable : 99;
 
   function clampQuantity(value: number) {
+    if (maxQuantity <= 0) return 0;
     return Math.max(1, Math.min(maxQuantity, value));
   }
 
   function handleAddToCart() {
+    if (soldOut) return;
     cart.addItem(product.id, kind, quantity);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   }
 
   function handleBuyNow() {
+    if (soldOut) return;
     navigate("/checkout", { state: { id: product.id, kind, quantity } });
   }
 
@@ -52,16 +58,8 @@ export default function ProductDetail() {
                 Limited Qty
               </span>
             )}
-            {kind === "stock" && (
-              <span
-                className={`badge ${
-                  product.quantityAvailable > 5
-                    ? "bg-leaf-100 text-leaf-600 ring-1 ring-inset ring-leaf-400/40"
-                    : "bg-ember-500/10 text-ember-600 ring-1 ring-inset ring-ember-500/30"
-                }`}
-              >
-                {product.quantityAvailable} in stock
-              </span>
+            {stockStatus && (
+              <span className={`badge ${stockStatus.badgeClass}`}>{stockStatus.label}</span>
             )}
           </div>
 
@@ -108,43 +106,53 @@ export default function ProductDetail() {
             </ul>
           </div>
 
-          <div className="mt-6 flex items-center gap-4">
-            <span className="field-label mb-0">Quantity</span>
-            <div className="flex items-center rounded-lg border border-slate-300">
-              <button
-                type="button"
-                className="px-3 py-2 text-slate-600 hover:text-gold-600 disabled:opacity-40"
-                onClick={() => setQuantity((q) => clampQuantity(q - 1))}
-                disabled={quantity <= 1}
-                aria-label="Decrease quantity"
-              >
-                −
-              </button>
-              <span className="min-w-[2.5rem] text-center text-sm font-semibold text-slate-900">
-                {quantity}
-              </span>
-              <button
-                type="button"
-                className="px-3 py-2 text-slate-600 hover:text-gold-600 disabled:opacity-40"
-                onClick={() => setQuantity((q) => clampQuantity(q + 1))}
-                disabled={quantity >= maxQuantity}
-                aria-label="Increase quantity"
-              >
-                +
-              </button>
+          {!soldOut && (
+            <div className="mt-6 flex items-center gap-4">
+              <span className="field-label mb-0">Quantity</span>
+              <div className="flex items-center rounded-lg border border-slate-300">
+                <button
+                  type="button"
+                  className="px-3 py-2 text-slate-600 hover:text-gold-600 disabled:opacity-40"
+                  onClick={() => setQuantity((q) => clampQuantity(q - 1))}
+                  disabled={quantity <= 1}
+                  aria-label="Decrease quantity"
+                >
+                  −
+                </button>
+                <span className="min-w-[2.5rem] text-center text-sm font-semibold text-slate-900">
+                  {quantity}
+                </span>
+                <button
+                  type="button"
+                  className="px-3 py-2 text-slate-600 hover:text-gold-600 disabled:opacity-40"
+                  onClick={() => setQuantity((q) => clampQuantity(q + 1))}
+                  disabled={quantity >= maxQuantity}
+                  aria-label="Increase quantity"
+                >
+                  +
+                </button>
+              </div>
+              {kind === "stock" && (
+                <span className="text-xs text-slate-400">{maxQuantity} available</span>
+              )}
             </div>
-            {kind === "stock" && (
-              <span className="text-xs text-slate-400">{maxQuantity} available</span>
-            )}
-          </div>
+          )}
 
           <div className="mt-6 flex flex-wrap gap-3">
-            <button type="button" className="btn-secondary" onClick={handleAddToCart}>
-              {added ? "Added ✓" : "Add to Cart"}
-            </button>
-            <button type="button" className="btn-primary" onClick={handleBuyNow}>
-              Buy Now
-            </button>
+            {soldOut ? (
+              <button type="button" disabled className="btn-secondary cursor-not-allowed opacity-50">
+                Sold Out
+              </button>
+            ) : (
+              <>
+                <button type="button" className="btn-secondary" onClick={handleAddToCart}>
+                  {added ? "Added ✓" : "Add to Cart"}
+                </button>
+                <button type="button" className="btn-primary" onClick={handleBuyNow}>
+                  Buy Now
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>

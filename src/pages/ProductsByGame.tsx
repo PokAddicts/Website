@@ -11,6 +11,7 @@ import {
   stockProducts,
 } from "../data/products";
 import { formatPrice } from "../utils/currency";
+import { getStockStatus } from "../utils/stock";
 
 interface ProductsByGameProps {
   gameSlug: string;
@@ -85,11 +86,15 @@ export default function ProductsByGame({ gameSlug }: ProductsByGameProps) {
         </div>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filtered.map((product) => (
+          {filtered.map((product) => {
+            const stockStatus = getStockStatus(product.quantityAvailable);
+            return (
             <Link
               key={product.id}
               to={`/product/${product.id}`}
-              className="card flex flex-col overflow-hidden transition hover:border-gold-400 hover:shadow-md"
+              className={`card flex flex-col overflow-hidden transition hover:border-gold-400 hover:shadow-md ${
+                stockStatus.soldOut ? "opacity-60" : ""
+              }`}
             >
               <ProductImagePlaceholder category={product.category} imageUrl={product.imageUrl} />
               <div className="flex flex-1 flex-col p-4">
@@ -97,15 +102,7 @@ export default function ProductsByGame({ gameSlug }: ProductsByGameProps) {
                   <span className={`badge ${categoryBadgeClasses[product.category]}`}>
                     {categoryMap[product.category].label}
                   </span>
-                  <span
-                    className={`badge ${
-                      product.quantityAvailable > 5
-                        ? "bg-leaf-100 text-leaf-600 ring-1 ring-inset ring-leaf-400/40"
-                        : "bg-ember-500/10 text-ember-600 ring-1 ring-inset ring-ember-500/30"
-                    }`}
-                  >
-                    {product.quantityAvailable} in stock
-                  </span>
+                  <span className={`badge ${stockStatus.badgeClass}`}>{stockStatus.label}</span>
                 </div>
                 <h3 className="font-semibold text-slate-900">{product.name}</h3>
                 <p className="mt-1 text-sm text-slate-500">{product.productType}</p>
@@ -114,11 +111,14 @@ export default function ProductsByGame({ gameSlug }: ProductsByGameProps) {
                   <span className="text-lg font-bold text-slate-900">
                     {formatPrice(product.price)}
                   </span>
-                  <span className="btn-primary pointer-events-none">View Details</span>
+                  <span className="btn-primary pointer-events-none">
+                    {stockStatus.soldOut ? "Sold Out" : "View Details"}
+                  </span>
                 </div>
               </div>
             </Link>
-          ))}
+            );
+          })}
         </div>
 
         {filtered.length === 0 && (

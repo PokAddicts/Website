@@ -1,0 +1,29 @@
+export interface StockStatus {
+  label: string;
+  badgeClass: string;
+  soldOut: boolean;
+}
+
+const LOW_STOCK_THRESHOLD = 5;
+
+export function getStockStatus(quantityAvailable: number): StockStatus {
+  if (quantityAvailable <= 0) {
+    return {
+      label: "Sold Out",
+      badgeClass: "bg-slate-200 text-slate-500 ring-1 ring-inset ring-slate-300",
+      soldOut: true,
+    };
+  }
+  if (quantityAvailable < LOW_STOCK_THRESHOLD) {
+    return {
+      label: `Only ${quantityAvailable} left`,
+      badgeClass: "bg-ember-500/10 text-ember-600 ring-1 ring-inset ring-ember-500/30",
+      soldOut: false,
+    };
+  }
+  return {
+    label: `${quantityAvailable} in stock`,
+    badgeClass: "bg-leaf-100 text-leaf-600 ring-1 ring-inset ring-leaf-400/40",
+    soldOut: false,
+  };
+}
