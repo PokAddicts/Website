@@ -20,6 +20,11 @@
 //    Add Trigger -> function: onProductSheetEdit -> event source: From
 //    spreadsheet -> event type: On edit -> Save. Authorize when prompted
 //    (expected — it's your own script acting under your own permissions).
+// 4. Add a SECOND trigger the same way, but with event type "On change"
+//    instead of "On edit". This one matters specifically for deleting or
+//    inserting whole rows/columns — Google treats that as a different kind
+//    of event than editing a cell's value, and "On edit" alone can miss it.
+//    Both triggers call the same onProductSheetEdit function below.
 //
 // Security note: unlike the Telegram token / Sheets logging secret, this
 // token never touches the site's public code — it lives only inside this
