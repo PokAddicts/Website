@@ -21,9 +21,9 @@ interface ProductListCardProps {
   ctaLabel: string;
 }
 
-// Compact horizontal row on mobile (small thumbnail + info) so multiple
-// products fit on screen at once; a fuller vertical card once the grid
-// widens at sm+.
+// Mobile: minimal — image, name, price, and a compact status pill (matches
+// the "browse fast, tap for detail" pattern of most TCG shop apps). Desktop
+// (sm+): the fuller card with category/status badges and product type.
 export default function ProductListCard({
   id,
   category,
@@ -39,30 +39,43 @@ export default function ProductListCard({
   return (
     <Link
       to={`/product/${id}`}
-      className={`card flex items-center gap-3 p-3 transition hover:border-gold-400 hover:shadow-md sm:block sm:overflow-hidden sm:p-0 ${
+      className={`card flex flex-col overflow-hidden transition hover:border-gold-400 hover:shadow-md ${
         soldOut ? "opacity-60" : ""
       }`}
     >
       <ProductImagePlaceholder
         category={category}
         imageUrl={imageUrl}
-        className="h-16 w-16 shrink-0 rounded-lg sm:aspect-[4/3] sm:h-auto sm:w-full sm:shrink sm:rounded-none sm:rounded-t-xl sm:border-b sm:border-slate-200"
+        className="aspect-square w-full sm:aspect-[4/3] sm:rounded-t-xl sm:border-b sm:border-slate-200"
       />
-      <div className="min-w-0 flex-1 sm:p-4">
-        <div className="flex flex-wrap items-center gap-1.5 sm:mb-2">
+
+      <div className="flex flex-1 flex-col p-2.5 sm:hidden">
+        <h3 className="line-clamp-2 text-sm font-semibold text-slate-900">{name}</h3>
+        <span className="mt-auto pt-2 text-sm font-bold text-slate-900">{formatPrice(price)}</span>
+        <span
+          className={`mt-2 w-full rounded-lg py-1.5 text-center text-xs font-semibold ${
+            soldOut ? "bg-slate-200 text-slate-500" : "bg-gold-500 text-white"
+          }`}
+        >
+          {ctaLabel}
+        </span>
+      </div>
+
+      <div className="hidden flex-1 flex-col p-4 sm:flex">
+        <div className="mb-2 flex items-center justify-between gap-2">
           <span className={`badge ${categoryBadge.className}`}>{categoryBadge.label}</span>
           {statusBadge && <span className={`badge ${statusBadge.className}`}>{statusBadge.label}</span>}
         </div>
-        <h3 className="truncate text-sm font-semibold text-slate-900 sm:mt-1 sm:whitespace-normal sm:text-base">
-          {name}
-        </h3>
-        <p className="hidden text-sm text-slate-500 sm:mt-1 sm:block">{productType}</p>
-        <div className="mt-1 flex items-center justify-between sm:mt-4">
-          <span className="text-sm font-bold text-slate-900 sm:text-lg">{formatPrice(price)}</span>
+        <h3 className="font-semibold text-slate-900">{name}</h3>
+        <p className="mt-1 text-sm text-slate-500">{productType}</p>
+        <div className="mt-4 flex flex-1 items-end justify-between">
+          <span className="text-lg font-bold text-slate-900">{formatPrice(price)}</span>
           <span
-            className={`hidden sm:inline-flex ${
-              soldOut ? "rounded-lg bg-slate-200 px-5 py-2.5 font-semibold text-slate-500" : "btn-primary"
-            }`}
+            className={
+              soldOut
+                ? "rounded-lg bg-slate-200 px-5 py-2.5 font-semibold text-slate-500"
+                : "btn-primary"
+            }
           >
             {ctaLabel}
           </span>
