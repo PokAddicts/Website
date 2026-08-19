@@ -7,22 +7,43 @@
 //    (and their header rows) automatically on first submission of each kind.
 // 2. In that Sheet: Extensions -> Apps Script. Delete the placeholder code
 //    and paste this whole file in.
-// 3. Deploy -> New deployment -> gear icon -> Web app.
+// 3. Replace SHARED_SECRET below with the value Claude gives you (also goes
+//    into VITE_SHEETS_LOG_SECRET in .env — the two must match exactly).
+// 4. Deploy -> New deployment -> gear icon -> Web app.
 //    - Execute as: Me
 //    - Who has access: Anyone
 //    Click Deploy, authorize when prompted (expected — it's your own script
 //    acting on your own Sheet), then copy the Web App URL it gives you.
-// 4. Give that URL to Claude to wire into the site (VITE_SHEETS_LOG_URL).
+// 5. Give that URL to Claude to wire into the site (VITE_SHEETS_LOG_URL).
 //
-// TEST-ONLY security note: like the Telegram bot token, this URL ends up in
-// the site's public JS. Anyone who extracts it could POST junk rows into
-// your sheet — low stakes (it's your own bookkeeping, not sensitive data),
-// but worth moving server-side once the VPS exists.
+// TEST-ONLY security note: like the Telegram bot token, this URL (and the
+// shared secret) end up in the site's public JS — Vite inlines env vars as
+// plain text, visible via View Source or the browser's Network tab. The
+// ALLOWED_SHEETS whitelist and secret check below only filter out generic
+// bots that scan for exposed Apps Script URLs and spam them blindly; they
+// don't stop someone who specifically inspects this site's code. This
+// endpoint can only append rows (no read access), so the real risk is junk
+// rows in your sheet, not data theft. Move this server-side once the VPS
+// exists for the real fix.
+
+var SHARED_SECRET = "k2ive5bcj6370w9mqrnylda4thzsuop1";
+var ALLOWED_SHEETS = ["Orders", "Reservations", "Business Enquiries"];
 
 function doPost(e) {
   try {
     var payload = JSON.parse(e.postData.contents);
+
+    if (payload.secret !== SHARED_SECRET) {
+      return ContentService.createTextOutput(JSON.stringify({ ok: false, error: "Forbidden" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
     var sheetName = payload.sheet;
+    if (ALLOWED_SHEETS.indexOf(sheetName) === -1) {
+      return ContentService.createTextOutput(JSON.stringify({ ok: false, error: "Unknown sheet" }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
     var data = payload.data || {};
 
     var ss = SpreadsheetApp.getActiveSpreadsheet();

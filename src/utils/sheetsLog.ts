@@ -9,6 +9,7 @@ export async function logToSheet(
   data: Record<string, string | number>
 ): Promise<void> {
   const url = import.meta.env.VITE_SHEETS_LOG_URL;
+  const secret = import.meta.env.VITE_SHEETS_LOG_SECRET;
 
   if (!url) {
     console.warn("[sheetsLog] VITE_SHEETS_LOG_URL not set — skipping log.");
@@ -23,7 +24,7 @@ export async function logToSheet(
     await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ sheet, data }),
+      body: JSON.stringify({ sheet, data, secret }),
       mode: "no-cors",
     });
   } catch (err) {
