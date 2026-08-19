@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>PokAddicts</title>
+    <script type="text/javascript">
+      // GitHub Pages has no server-side rewrites, so a direct visit to a deep
+      // route (e.g. /Website/products/pokemon) 404s. This re-encodes the path
+      // into a query string and redirects to index.html, which decodes it
+      // back (see the matching script in index.html) so React Router can
+      // take over. Standard trick: https://github.com/rafgraph/spa-github-pages
+      var pathSegmentsToKeep = 1; // keeps the /Website segment
+      var l = window.location;
+      l.replace(
+        l.protocol +
+          "//" +
+          l.hostname +
+          (l.port ? ":" + l.port : "") +
+          l.pathname.split("/").slice(0, 1 + pathSegmentsToKeep).join("/") +
+          "/?/" +
+          l.pathname
+            .slice(1)
+            .split("/")
+            .slice(pathSegmentsToKeep)
+            .join("/")
+            .replace(/&/g, "~and~") +
+          (l.search ? "&" + l.search.slice(1).replace(/&/g, "~and~") : "") +
+          l.hash
+      );
+    </script>
+  </head>
+  <body></body>
+</html>
