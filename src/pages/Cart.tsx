@@ -57,7 +57,7 @@ export default function Cart() {
           return (
             <div key={line.id} className="card flex gap-4 p-4">
               <div className="h-24 w-24 shrink-0 overflow-hidden rounded-lg">
-                <ProductImagePlaceholder category={product.category} imageUrl={product.imageUrl} />
+                <ProductImagePlaceholder category={product.category} imageUrl={product.imageUrl} className="h-full w-full" />
               </div>
               <div className="flex flex-1 flex-col">
                 <div className="flex items-start justify-between gap-3">

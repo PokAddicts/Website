@@ -1,14 +1,13 @@
 import { useMemo, useRef } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import PageHeader from "../components/PageHeader";
-import ProductImagePlaceholder from "../components/ProductImagePlaceholder";
+import ProductListCard from "../components/ProductListCard";
 import {
   categoryBadgeClasses,
   categoryMap,
   preorderProducts,
   stockProducts,
 } from "../data/products";
-import { formatPrice } from "../utils/currency";
 
 interface SearchResult {
   id: string;
@@ -101,30 +100,26 @@ export default function Search() {
         )}
 
         {results.length > 0 && (
-          <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
             {results.map((product) => (
-              <Link
+              <ProductListCard
                 key={product.id}
-                to={`/product/${product.id}`}
-                className="card flex flex-col overflow-hidden transition hover:border-gold-400 hover:shadow-md"
-              >
-                <ProductImagePlaceholder category={product.category} imageUrl={product.imageUrl} />
-                <div className="flex flex-1 flex-col p-4">
-                  <div className="mb-2 flex items-center justify-between gap-2">
-                    <span className={`badge ${categoryBadgeClasses[product.category]}`}>
-                      {categoryMap[product.category].label}
-                    </span>
-                    <span className="badge bg-slate-100 text-slate-500">
-                      {product.kind === "preorder" ? "Preorder" : "In Stock"}
-                    </span>
-                  </div>
-                  <h3 className="font-semibold text-slate-900">{product.name}</h3>
-                  <p className="mt-1 text-sm text-slate-500">{product.productType}</p>
-                  <span className="mt-4 text-lg font-bold text-slate-900">
-                    {formatPrice(product.price)}
-                  </span>
-                </div>
-              </Link>
+                id={product.id}
+                category={product.category}
+                imageUrl={product.imageUrl}
+                name={product.name}
+                productType={product.productType}
+                price={product.price}
+                categoryBadge={{
+                  label: categoryMap[product.category].label,
+                  className: categoryBadgeClasses[product.category],
+                }}
+                statusBadge={{
+                  label: product.kind === "preorder" ? "Preorder" : "In Stock",
+                  className: "bg-slate-100 text-slate-500",
+                }}
+                ctaLabel="View Details"
+              />
             ))}
           </div>
         )}

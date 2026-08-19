@@ -6,17 +6,24 @@ const gradients: Record<string, string> = {
 };
 const fallbackGradient = "from-slate-100 via-white to-slate-50";
 
+const DEFAULT_CLASS = "aspect-[4/3] w-full rounded-t-xl border-b border-slate-200";
+
 interface ProductImagePlaceholderProps {
   category: Category;
   imageUrl?: string;
+  className?: string;
 }
 
-export default function ProductImagePlaceholder({ category, imageUrl }: ProductImagePlaceholderProps) {
+export default function ProductImagePlaceholder({
+  category,
+  imageUrl,
+  className = DEFAULT_CLASS,
+}: ProductImagePlaceholderProps) {
   const info = categoryMap[category];
 
   if (imageUrl) {
     return (
-      <div className="aspect-[4/3] w-full overflow-hidden rounded-t-xl border-b border-slate-200 bg-slate-50">
+      <div className={`overflow-hidden bg-slate-50 ${className}`}>
         <img src={imageUrl} alt="" className="h-full w-full object-cover" />
       </div>
     );
@@ -24,11 +31,11 @@ export default function ProductImagePlaceholder({ category, imageUrl }: ProductI
 
   return (
     <div
-      className={`flex aspect-[4/3] w-full items-center justify-center rounded-t-xl border-b border-slate-200 bg-gradient-to-br ${
+      className={`flex items-center justify-center bg-gradient-to-br ${
         gradients[info.gameName] ?? fallbackGradient
-      }`}
+      } ${className}`}
     >
-      <span className="font-display text-sm font-semibold uppercase tracking-widest text-slate-400">
+      <span className="font-display text-xs font-semibold uppercase tracking-widest text-slate-400 sm:text-sm">
         {info.gameName}
       </span>
     </div>

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import PageHeader from "../components/PageHeader";
-import ProductImagePlaceholder from "../components/ProductImagePlaceholder";
+import ProductListCard from "../components/ProductListCard";
 import {
   Category,
   categories,
@@ -10,7 +10,6 @@ import {
   gameMap,
   stockProducts,
 } from "../data/products";
-import { formatPrice } from "../utils/currency";
 import { getStockStatus, sortByAvailability } from "../utils/stock";
 
 interface ProductsByGameProps {
@@ -84,44 +83,26 @@ export default function ProductsByGame({ gameSlug }: ProductsByGameProps) {
           ))}
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((product) => {
             const stockStatus = getStockStatus(product.quantityAvailable);
             return (
-            <Link
-              key={product.id}
-              to={`/product/${product.id}`}
-              className={`card flex flex-col overflow-hidden transition hover:border-gold-400 hover:shadow-md ${
-                stockStatus.soldOut ? "opacity-60" : ""
-              }`}
-            >
-              <ProductImagePlaceholder category={product.category} imageUrl={product.imageUrl} />
-              <div className="flex flex-1 flex-col p-4">
-                <div className="mb-2 flex items-center justify-between gap-2">
-                  <span className={`badge ${categoryBadgeClasses[product.category]}`}>
-                    {categoryMap[product.category].label}
-                  </span>
-                  <span className={`badge ${stockStatus.badgeClass}`}>{stockStatus.label}</span>
-                </div>
-                <h3 className="font-semibold text-slate-900">{product.name}</h3>
-                <p className="mt-1 text-sm text-slate-500">{product.productType}</p>
-
-                <div className="mt-4 flex flex-1 items-end justify-between">
-                  <span className="text-lg font-bold text-slate-900">
-                    {formatPrice(product.price)}
-                  </span>
-                  <span
-                    className={`pointer-events-none ${
-                      stockStatus.soldOut
-                        ? "rounded-lg bg-slate-200 px-5 py-2.5 font-semibold text-slate-500"
-                        : "btn-primary"
-                    }`}
-                  >
-                    {stockStatus.soldOut ? "Sold Out" : "View Details"}
-                  </span>
-                </div>
-              </div>
-            </Link>
+              <ProductListCard
+                key={product.id}
+                id={product.id}
+                category={product.category}
+                imageUrl={product.imageUrl}
+                name={product.name}
+                productType={product.productType}
+                price={product.price}
+                categoryBadge={{
+                  label: categoryMap[product.category].label,
+                  className: categoryBadgeClasses[product.category],
+                }}
+                statusBadge={{ label: stockStatus.label, className: stockStatus.badgeClass }}
+                soldOut={stockStatus.soldOut}
+                ctaLabel={stockStatus.soldOut ? "Sold Out" : "View Details"}
+              />
             );
           })}
         </div>
