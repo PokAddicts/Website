@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
+import ScrollToTop from "./components/ScrollToTop";
 import Home from "./pages/Home";
 import ProductsOverview from "./pages/ProductsOverview";
 import PreorderProducts from "./pages/PreorderProducts";
@@ -18,6 +19,7 @@ import NotFound from "./pages/NotFound";
 export default function App() {
   return (
     <Layout>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<ProductsOverview />} />
