@@ -8,7 +8,7 @@ export default function Footer() {
         <div className="lg:max-w-xs">
           <div className="flex items-center gap-2.5">
             <div className="h-11 w-11 overflow-hidden rounded-full border border-slate-200 p-1">
-              <img src="/logo.jpg" alt="PokAddicts TCG" className="h-full w-full rounded-full object-cover" />
+              <img src={`${import.meta.env.BASE_URL}logo.jpg`} alt="PokAddicts TCG" className="h-full w-full rounded-full object-cover" />
             </div>
             <span className="font-brand text-base font-extrabold uppercase tracking-normal text-slate-900">
               PokAddicts <span className="text-gold-500">TCG</span>

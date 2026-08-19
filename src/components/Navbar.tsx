@@ -33,7 +33,7 @@ export default function Navbar() {
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5 sm:px-6 lg:px-8">
         <NavLink to="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)}>
           <div className="h-12 w-12 overflow-hidden rounded-full p-1 ring-1 ring-white/10">
-            <img src="/logo.jpg" alt="PokAddicts TCG" className="h-full w-full rounded-full object-cover" />
+            <img src={`${import.meta.env.BASE_URL}logo.jpg`} alt="PokAddicts TCG" className="h-full w-full rounded-full object-cover" />
           </div>
           <span className="font-brand text-lg font-extrabold uppercase tracking-normal text-white">
             PokAddicts <span className="text-gold-400">TCG</span>
