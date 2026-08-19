@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import PageHeader from "../components/PageHeader";
 import { sendTelegramMessage } from "../utils/telegram";
+import { logToSheet } from "../utils/sheetsLog";
 
 const SERVICES = [
   {
@@ -63,7 +64,6 @@ export default function Restoration() {
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    // TODO: also log this to Google Sheets once the appointments sheet exists.
     sendTelegramMessage(
       "New Restoration Booking\n" +
         `Name: ${form.name}\n` +
@@ -74,6 +74,16 @@ export default function Restoration() {
         `Preferred: ${form.preferredDate || "—"} at ${form.preferredTime || "—"}\n` +
         `Notes: ${form.notes || "—"}`
     ).catch(() => {});
+    logToSheet("Reservations", {
+      Name: form.name,
+      Email: form.email,
+      Phone: form.phone,
+      Service: form.service,
+      "Item Description": form.itemDescription,
+      "Preferred Date": form.preferredDate,
+      "Preferred Time": form.preferredTime,
+      Notes: form.notes,
+    }).catch(() => {});
     setSubmitted(true);
   }
 

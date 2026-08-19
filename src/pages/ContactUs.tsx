@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import PageHeader from "../components/PageHeader";
 import { sendTelegramMessage } from "../utils/telegram";
+import { logToSheet } from "../utils/sheetsLog";
 
 interface FormState {
   businessName: string;
@@ -32,7 +33,6 @@ export default function ContactUs() {
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    // TODO: also log this to Google Sheets once the inquiries sheet exists.
     sendTelegramMessage(
       "New Bulk & Wholesale Inquiry\n" +
         `Business/Channel: ${form.businessName || "—"}\n` +
@@ -43,6 +43,15 @@ export default function ContactUs() {
         `Est. Quantity: ${form.estimatedQuantity || "—"}\n` +
         `Message: ${form.message || "—"}`
     ).catch(() => {});
+    logToSheet("Business Enquiries", {
+      "Business/Channel": form.businessName,
+      Contact: form.contactName,
+      Email: form.email,
+      Phone: form.phone,
+      "Interested In": form.interest,
+      "Est. Quantity": form.estimatedQuantity,
+      Message: form.message,
+    }).catch(() => {});
     setSubmitted(true);
   }
 

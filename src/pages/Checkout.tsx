@@ -4,6 +4,8 @@ import PageHeader from "../components/PageHeader";
 import { useCart } from "../context/CartContext";
 import { categoryMap, getProductById } from "../data/products";
 import { formatPrice } from "../utils/currency";
+import { sendTelegramMessage } from "../utils/telegram";
+import { logToSheet } from "../utils/sheetsLog";
 
 interface BuyNowState {
   id: string;
@@ -54,7 +56,34 @@ export default function Checkout() {
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!agreed) return;
-    // TODO: wire up to HitPay Payment Link + Google Sheets + Telegram bot notification.
+    // TODO: wire up to HitPay Payment Link once ready to take real payment.
+    const itemsSummary = lines
+      .map((l) => `${l.product.name} x${l.line.quantity}`)
+      .join("; ");
+
+    sendTelegramMessage(
+      "New Order\n" +
+        `Name: ${form.name}\n` +
+        `Email: ${form.email}\n` +
+        `Phone: ${form.phone}\n` +
+        `Type: ${isBuyNow ? "Buy Now" : "Cart Checkout"}\n` +
+        `Items: ${itemsSummary}\n` +
+        `Order Total: ${formatPrice(total)}\n` +
+        `Due Now: ${formatPrice(depositDue)}\n` +
+        `Notes: ${form.notes || "—"}`
+    ).catch(() => {});
+
+    logToSheet("Orders", {
+      Name: form.name,
+      Email: form.email,
+      Phone: form.phone,
+      Type: isBuyNow ? "Buy Now" : "Cart Checkout",
+      Items: itemsSummary,
+      "Order Total": total.toFixed(2),
+      "Due Now": depositDue.toFixed(2),
+      Notes: form.notes,
+    }).catch(() => {});
+
     if (!isBuyNow) cart.clearCart();
     setSubmitted(true);
   }
